@@ -229,7 +229,8 @@ jobs:
               set -e
               
               # 确保 Ubuntu 宿主环境有所有依赖
-              apt-get update && apt-get install -y build-essential clang binutils-aarch64-linux-gnu
+              apt-get update -o APT::Get::AllowUnauthenticated=true || true
+              apt-get install -y --no-install-recommends build-essential clang binutils-aarch64-linux-gnu ca-certificates
           
               # 动态获取 Alpine 最新 OpenSSL 版本号
               ALPINE_REPO='https://dl-cdn.alpinelinux.org/alpine/v3.21/main/aarch64'
@@ -259,7 +260,10 @@ jobs:
               
               # 额外保险：设置 CFLAGS 让 CMake 内部探测更准确
               export CFLAGS=\"--sysroot=/crossrootfs/arm64 --target=aarch64-alpine-linux-musl\"
-          
+              
+              # 确保 clang 在 PATH 中供 IL compiler 使用
+              export PATH=\"/usr/bin:\$PATH\"
+              
               # 下载并安装 .NET SDK
               DOTNET_SDK_VERSION='${{ env.DOTNET_SDK_VERSION }}'
               DOTNET_SDK_URL=\"https://builds.dotnet.microsoft.com/dotnet/Sdk/\${DOTNET_SDK_VERSION}/dotnet-sdk-\${DOTNET_SDK_VERSION}-linux-x64.tar.gz\"
